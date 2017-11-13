@@ -123,6 +123,7 @@ plot(emd_avg/max(emd_avg));
 title('Comparison of Different Energy Functions')
 legend('Total Saliency','Mean Saliency','maxSaliency','Earth Movers Distance','EMD vs avg frame');
 %% Plot of EMD from Average Frame
+emd_avg = saliency_EMD_Avg_Energy
 figure;
 subplot(121);
 plot(emd_avg)
