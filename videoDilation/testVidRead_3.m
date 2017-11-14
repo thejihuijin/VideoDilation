@@ -12,7 +12,7 @@ clear; clc; close all
 
 %% Load video
 dim_ds = 4; % Downsizing of height & width dimensions
-[rgbVid, fr] = sliceVid('../data/ball_slowmo_crop.mp4', 0, 15, dim_ds);
+[rgbVid, fr] = sliceVid('../../ball_slowmo_crop.mp4', 0, 15, dim_ds);
 
 slow_speed = 1/8; % If video is in slow-mo change this var
 fr = fr/slow_speed;
@@ -70,33 +70,27 @@ energy_smoothed2 = movmean( energy_normal, mov_avg_window);
 energy_smoothed2 = energy_smoothed2 / mean(energy_smoothed2);
 fr_smoothed2 = min_fr + (fr-min_fr)*energy_smoothed2;
 
-%% Play original, scaled, and smoothed in grayscale
-clc;
-figure(1), colormap('Gray')
-for i = 1:n_frames
-    imagesc(vid(:,:,i))
-    title(['Original @ ' num2str(fr) ' fps - ' ...
-        sprintf('%.2f',i/fr) ' seconds elapsed'])
-    pause( 1/fr );
-end
+%% Compute playback vector from framerate vector
+scaled_playback = fr2playback(fr_scaled, fr);
 
-figure(2), colormap('Gray')
-currTime = 0;
-for i = 1:n_frames
-    imagesc(vid(:,:,i))
-    title(['Variable framerate - ' sprintf('%.2f',currTime) ' seconds elapsed'])
-    pause( 1/fr_scaled(i) );
-    currTime = currTime + 1/fr_scaled(i);
-end
+smoothed_playback = fr2playback(fr_smoothed, fr);
 
-figure(3), colormap('Gray')
-currTime = 0;
-for i = 1:n_frames
-    imagesc(vid(:,:,i))
-    title(['Smoothed variable framerate - ' sprintf('%.2f',currTime) ' seconds elapsed'])
-    pause( 1/fr_smoothed(i) );
-    currTime = currTime + 1/fr_smoothed(i);
-end
+%% Play original, scaled, and smoothed in grayscal
+
+figure(1)
+playVidMat( vid, fr )
+% 
+% figure(2)
+% playVidMat( vid, fr_scaled )
+% 
+% figure(3)
+% playVidMat( vid, fr_smoothed )
+
+figure(2)
+playDilatedFrames( vid, scaled_playback, fr )
+
+figure(3)
+playDilatedFrames( vid, smoothed_playback, fr )
 
 % %% Play at original framerate
 % slow_mo = 1; % Number of times slower to play videos

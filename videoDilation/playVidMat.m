@@ -1,4 +1,7 @@
 function [] = playVidMat(vidMat, frameRates)
+% PLAYVIDMAT Plays a sequence of RGB or Gray frames with framerate 
+% determined by input framerate vector or scalar.
+
 if length(size(vidMat)) == 4
     [~, ~, ~, frames] = size(vidMat);
 else
@@ -12,7 +15,6 @@ if frames ~= length(frameRates)
     error('Framerate vector and video matrix not equal length.')
 end
 
-figure
 currTime = 0;
 if length(size(vidMat)) == 4
     for i = 1:frames
