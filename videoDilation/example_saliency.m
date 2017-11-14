@@ -63,77 +63,22 @@ totalSaliency = reshape(sum(sum(saliencyMapHolder,1),2),[1 nFrames]);
 meanSaliency = reshape(mean(mean(saliencyMapHolder,1),2),[1 nFrames]);
 maxSaliency = reshape(max(max(saliencyMapHolder,[],1),[],2),[1 nFrames]);
 
-%% EMD Histogram Comparison Example Single Frame
-% sum(abs(cdf(x)-cdf(y)))
-salIm = saliencyMapHolder(:,:,1);
-figure;
-subplot(221)
-imagesc(salIm);
-title('Saliency Image');
-subplot(222)
-histogram(salIm)
-title('Histogram');
 
-edges = .025:.05:1;
-N = hist(salIm(:),edges)/numel(salIm);
-subplot(223)
-bar(edges,N)
-title('PDF of Saliency Frame');
-
-subplot(224)
-uniform =ones(size(edges))/numel(salIm);
-bar(edges,uniform);
-title('PDF of Uniform')
-
-figure;
-X = cumsum(N);
-Y = cumsum(uniform);
-subplot(121)
-plot(edges,X);
-title('CDF of Saliency Frame');
-subplot(122)
-plot(edges,Y);
-title('CDF of Uniform PDF');
-fprintf('EMD = %f\n',sum(abs(X - Y)));
 %% EMD Plot for saliency maps
-emd_salmap = zeros([1 nFrames]);
-edges = .025:.05:1;
-uniform =ones(size(edges))/numel(saliencyMapHolder(:,:,1));
-Y = cumsum(uniform);
-
-avgsalmap = mean(saliencyMapHolder,3);
-avg_hist = hist(avgsalmap(:),edges)/numel(avgsalmap);
-avg_cdf = cumsum(avg_hist);
-emd_avg = zeros([1 nFrames]);
-for ii=1:nFrames
-    salIm = saliencyMapHolder(:,:,ii);
-    N = hist(salIm(:),edges)/numel(salIm);
-    
-    X = cumsum(N);
-    emd_salmap(ii) = sum(abs(X-Y));
-    emd_avg(ii) = sum(abs(X-avg_cdf));
-end
+emd_avg = saliency_EMD_Avg_Energy(saliencyMapHolder);
 %% Compare different metrics
 figure; hold on;
 plot(totalSaliency/max(totalSaliency));
 plot(meanSaliency);
 plot(maxSaliency);
-plot(emd_salmap/max(emd_salmap));
+%plot(emd_salmap/max(emd_salmap));
 plot(emd_avg/max(emd_avg));
 title('Comparison of Different Energy Functions')
-legend('Total Saliency','Mean Saliency','maxSaliency','Earth Movers Distance','EMD vs avg frame');
+legend('Total Saliency','Mean Saliency','maxSaliency','EMD vs avg frame');
 %% Plot of EMD from Average Frame
-emd_avg = saliency_EMD_Avg_Energy
-figure;
-subplot(121);
-plot(emd_avg)
-xlabel('Frame #')
-ylabel('EMD')
-title('EMD from avg Frame');
 
-subplot(122);
-mov_avg_window = 15;
-plot(smooth(emd_avg,10));
+figure;
+plot(emd_avg);
 xlabel('Frame #')
 ylabel('EMD')
 title('Smoothed EMD from avg Frame');
@@ -154,15 +99,19 @@ for i = 1:nFrames
     pause( 1/fr );
 end
 close(f)
-%%
-mov_avg_window = 15;
-emd_frame_times = smooth(emd_avg,mov_avg_window);
-emd_frame_times = 1 - emd_frame_times/max(emd_frame_times);
-figure; hold on
-
-emd_frame_times = 5+50*emd_frame_times/max(emd_frame_times);
+%% Adjust energy graph to frame rate
+emd_frame_times = 2*(mean(emd_avg) - emd_avg);
+figure; 
+subplot(121); hold on;
 plot(emd_frame_times)
-min_fr = 1/15;
+plot(ones(size(emd_frame_times))*mean(emd_frame_times));
+plot(ones(size(emd_frame_times))*max(emd_frame_times));
+plot(ones(size(emd_frame_times))*min(emd_frame_times));
+
+subplot(122);
+plot(30*2.^(emd_frame_times));
+
+emd_frame_times = 30*2.^(emd_frame_times);
 %%
 figure, colormap('Gray')
 currTime = 0;

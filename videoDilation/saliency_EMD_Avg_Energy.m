@@ -1,4 +1,4 @@
-function [ energy_graph ] = saliency_EMD_Avg_Energy( saliencyFrames )
+function [ energy_graph, emd_std ] = saliency_EMD_Avg_Energy( saliencyFrames )
 %SALIENCYENERGY 
 % Takes in a series of saliency maps and computes the
 % energy as the earth mover's distance from the average saliency map. It 
@@ -22,7 +22,8 @@ for ii=1:nFrames
     energy_graph(ii) = sum(abs(X-avg_cdf));
 end
 mov_avg_window = 15;
-energy_graph = smooth(energy_graph,mov_avg_window);
+energy_graph = movmean(energy_graph,mov_avg_window);
+emd_std = std(energy_graph,1);
 energy_graph = energy_graph - min(energy_graph);
 energy_graph = energy_graph/max(energy_graph);
 end
