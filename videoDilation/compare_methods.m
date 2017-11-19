@@ -46,7 +46,23 @@ for i = 1:n_frames
     % I don't know how to initialize a vector of these objects
     flow(i) = estimateFlow(OF, vid(:,:,i));
 end
-
+%% Compute dynamic ranges
+salminmax = [min(saliencyMapHolder(:)), max(saliencyMapHolder(:))];
+ofminmax = [inf,-inf];
+ofbounds = zeros(2,n_frames);
+for i = 1:n_frames
+    temp = min(min(flow(i).Magnitude));
+    if temp < ofminmax(1)
+        ofminmax(1) = temp;
+    end
+    ofbounds(1,i) = temp;
+    temp = max(max(flow(i).Magnitude));
+    if temp > ofminmax(2)
+        ofminmax(2) = temp;
+    end
+    ofbounds(2,i) = temp;
+end
+clear('temp');
 %% Display Saliency and Optical Flow
 fig = figure;
 for i = 1:n_frames
@@ -60,11 +76,11 @@ for i = 1:n_frames
     
     subplot(132);
     tmpSal=imresize(saliencyMapHolder(:,:,i),[rows, cols],'bilinear');
-    imagesc(tmpSal);
+    imagesc(tmpSal,salminmax);
     title('Saliency Map');
     
     subplot(133);
-    imagesc(flow(i).Magnitude);
+    imagesc(flow(i).Magnitude,ofminmax);
     title('Optical Flow');
     dur_calc = toc(st);
     pause(1/15 - dur_calc);
