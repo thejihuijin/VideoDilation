@@ -5,7 +5,8 @@ if ~exist('mov_avg_window')
 end
 std_dev = std(energy);
 
-smoothed_energy=movmean(energy,mov_avg_window);
+smoothed_energy=movmedian(energy,5);
+smoothed_energy=movmean(smoothed_energy,mov_avg_window);
 smoothed_energy = smoothed_energy-min(smoothed_energy);
 smoothed_energy = smoothed_energy/max(smoothed_energy);
 
