@@ -14,6 +14,9 @@ for i = 1:length(plybk_times)
     
     while 1
         if frame_ptr + 1 > length(dilated_times)
+            if frame_ptr > length(playbackFrames)
+                frame_ptr = length(playbackFrames);
+            end
             playbackFrames(i) = frame_ptr;
             break
         end

@@ -9,7 +9,7 @@ v = VideoReader(filename);
 rows = v.Height;
 cols = v.Width;
 frame_rate = v.FrameRate;
-total_frames = floor(v.Duration * frame_rate);
+total_frames = floor(v.Duration) * frame_rate;
 
 start_frame = floor(startTime*frame_rate)+1;
 end_frame = floor(endTime*frame_rate);
@@ -28,7 +28,7 @@ vidMatrix = zeros(rows_ds, cols_ds, 3, num_frames);
 for i = 1:start_frame-1
     readFrame(v);
 end
-for i = 1:num_frames
+for i = 1:num_frames-1
     frame = readFrame(v);
     vidMatrix(:,:,:,i) = im2double(frame(1:ds:end,1:ds:end,:));
 end

@@ -9,26 +9,32 @@ clear; clc; close all
 % [rgbVid, fr] = sliceVid('rockBeach.mp4', 18, 23, 5);
 % [rgbVid, fr] = sliceVid('ball_slowmo.mp4', 0, 13, 10);
 % [rgbVid, fr] = sliceVid('ball_slowmo_crop.mp4', 0, 15, 2);
+% [rgbVid, fr] = sliceVid('../../ball_slowmo_crop.mp4', 0, 15, dim_ds);
+% [rgbVid, fr] = sliceVid('../../S9CEzbd7Ftc.mp4', 30, 40, dim_ds);
 
 %% Load video
-dim_ds = 4; % Downsizing of height & width dimensions
+dim_ds = 4; % Downsampling of height & width dimensions
 [rgbVid, fr] = sliceVid('../../ball_slowmo_crop.mp4', 0, 15, dim_ds);
+
+% rgbVid = cat(4, rgbVid, flip(rgbVid,4), rgbVid);
 
 slow_speed = 1/8; % If video is in slow-mo change this var
 fr = fr/slow_speed;
 
-frame_ds = 2; % Downsample the number of frames
-rgbVid = rgbVid(:,:,:,1:2:end);
+frame_ds = 1; % Downsample the number of frames
+rgbVid = rgbVid(:,:,:,1:frame_ds:end);
 fr = fr/frame_ds;
 
 % Convert to gray & record final dimensions
 [rows, cols, ~, n_frames] = size(rgbVid);
 vid = rgbToGrayVid(rgbVid);
 
+clear rgbVid
+
 %% Compute optical flow frames
 % Horn-Schunck Method
 OF = opticalFlowHS();
-flow = estimateFlow(OF, vid(:,:,1)); % Use 1st frame as reference
+flow = estimateFlow(OF, vid(:,:,1)); % Set 1st frame as reference
 for i = 1:n_frames
     % I don't know how to initialize a vector of these objects
     flow(i) = estimateFlow(OF, vid(:,:,i));
@@ -41,43 +47,60 @@ for i = 1:n_frames
     energy(i) = sum(sum(flow(i).Magnitude));
 end
 
+% Interpolate outliers with median
+energy = movmedian(energy,5);
+
 %% Normalize energy vector
-energy_normal = (energy - min(energy)) / (max(energy - min(energy)));
+energy_normal = (energy - min(energy)) / range(energy);
 
 % Invert energy scale so greater energy correlates to lower framerate
 energy_normal = 1 - energy_normal;
 
 %% Scale framerate to desired range
 % Framerate normalized to range between min_fr and min_fr + range_fr
-min_fr = fr;
-range_fr = fr;
+min_fr = 120;
+range_fr = 240;
 fr_scaled = energy_normal*range_fr + min_fr;
 
 % Alternatively, scale so that the mean framerate = original framerate
 energy_normal2 = energy_normal / mean(energy_normal);
-fr_scaled2 = min_fr + (fr-min_fr)*energy_normal2;
+fr_scaled2 = min_fr + (fr - min_fr)*energy_normal2;
 
 %% Smooth, renormalize, and scale the energy-normalized framerate
 mov_avg_window = 15;
 
-energy_smoothed = movmean(energy_normal, mov_avg_window);
-energy_smoothed = (energy_smoothed - min(energy_smoothed)) ...
-    / (max(energy_smoothed - min(energy_smoothed)));
-fr_smoothed = energy_smoothed*range_fr + min_fr;
+energy_smooth = movmean(energy_normal, mov_avg_window);
+energy_smooth = (energy_smooth - min(energy_smooth))/range(energy_smooth);
+fr_smoothed = energy_smooth*range_fr + min_fr;
+% fr_smoothed = movmean(fr_scaled, mov_avg_window);
 
 % Alternatively, scale so that the mean framerate = original framerate
 energy_smoothed2 = movmean( energy_normal, mov_avg_window);
 energy_smoothed2 = energy_smoothed2 / mean(energy_smoothed2);
-fr_smoothed2 = min_fr + (fr-min_fr)*energy_smoothed2;
+fr_smoothed2 = min_fr + (fr - min_fr)*energy_smoothed2;
+
+%% Quantize framerate, adjust framerate changes, re-smooth framerate
+q_levels = 5;
+fr_quant = quantFR( fr_smoothed, q_levels );
+
+fr_q_adj = adjustFR( fr_quant, 0.2, fr );
+
+% Smooth the adjusted framerate
+mov_avg_window = 5;
+fr_q_adj_smooth = movmean( fr_q_adj, mov_avg_window );
+fr_q_adj_smooth = movmean( fr_q_adj_smooth, mov_avg_window );
+
+figure
+plot(1:n_frames,fr_smoothed, 1:n_frames,fr_q_adj, 1:n_frames, fr_q_adj_smooth)
+legend('Smoothed', 'Adjusted, Quantized', 'Adjusted, Quantized, Smoothed')
 
 %% Compute playback vector from framerate vector
 scaled_playback = fr2playback(fr_scaled, fr);
-
 smoothed_playback = fr2playback(fr_smoothed, fr);
+adjusted_smooth_playback = fr2playback(fr_q_adj_smooth, fr);
 
 %% Play original, scaled, and smoothed in grayscal
-
-figure(1)
+figure
 playVidMat( vid, fr )
 % 
 % figure(2)
@@ -86,11 +109,14 @@ playVidMat( vid, fr )
 % figure(3)
 % playVidMat( vid, fr_smoothed )
 
-figure(2)
-playDilatedFrames( vid, scaled_playback, fr )
+figure
+playDilatedFrames( vid, scaled_playback, fr, fr_scaled )
 
-figure(3)
-playDilatedFrames( vid, smoothed_playback, fr )
+figure
+playDilatedFrames( vid, smoothed_playback, fr, fr_smoothed )
+
+figure
+playDilatedFrames( vid, adjusted_smooth_playback, fr, fr_q_adj_smooth )
 
 % %% Play at original framerate
 % slow_mo = 1; % Number of times slower to play videos
