@@ -83,7 +83,7 @@ fr_smoothed2 = min_fr + (fr - min_fr)*energy_smoothed2;
 q_levels = 5;
 fr_quant = quantFR( fr_smoothed, q_levels );
 
-fr_q_adj = adjustFR( fr_quant, 0.2, fr );
+fr_q_adj = adjustFR( fr_smoothed, 0.2, fr );
 
 % Smooth the adjusted framerate
 mov_avg_window = 5;
@@ -99,24 +99,18 @@ scaled_playback = fr2playback(fr_scaled, fr);
 smoothed_playback = fr2playback(fr_smoothed, fr);
 adjusted_smooth_playback = fr2playback(fr_q_adj_smooth, fr);
 
-%% Play original, scaled, and smoothed in grayscal
-figure
-playVidMat( vid, fr )
+%% Play original, scaled, and smoothed in grayscale
+% figure
+% playVidMat( vid, fr )
 % 
-% figure(2)
-% playVidMat( vid, fr_scaled )
+% figure
+% playDilatedFrames( vid, scaled_playback, fr, fr_scaled )
 % 
-% figure(3)
-% playVidMat( vid, fr_smoothed )
-
-figure
-playDilatedFrames( vid, scaled_playback, fr, fr_scaled )
-
-figure
-playDilatedFrames( vid, smoothed_playback, fr, fr_smoothed )
-
-figure
-playDilatedFrames( vid, adjusted_smooth_playback, fr, fr_q_adj_smooth )
+% figure
+% playDilatedFrames( vid, smoothed_playback, fr, fr_smoothed )
+% 
+% figure
+% playDilatedFrames( vid, adjusted_smooth_playback, fr, fr_q_adj_smooth )
 
 % %% Play at original framerate
 % slow_mo = 1; % Number of times slower to play videos
