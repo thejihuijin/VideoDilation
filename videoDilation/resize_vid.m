@@ -1,7 +1,7 @@
 function [outputArg1,outputArg2] = resize_vid(inputName,outputName,newrows,newcols)
 inputReader = VideoReader(inputName);
 
-outputWriter = VideoWriter(outputName);
+outputWriter = VideoWriter(outputName,'MPEG-4');
 open(outputWriter);
 
 while hasFrame(inputReader)
