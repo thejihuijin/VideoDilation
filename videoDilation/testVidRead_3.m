@@ -79,20 +79,12 @@ energy_smoothed2 = movmean( energy_normal, mov_avg_window);
 energy_smoothed2 = energy_smoothed2 / mean(energy_smoothed2);
 fr_smoothed2 = min_fr + (fr - min_fr)*energy_smoothed2;
 
-%% Quantize framerate, adjust framerate changes, re-smooth framerate
-q_levels = 5;
-fr_quant = quantFR( fr_smoothed, q_levels );
-
+%% Adjust framerate changes, re-smooth framerate
 fr_q_adj = adjustFR( fr_smoothed, 0.2, fr );
-
-% Smooth the adjusted framerate
-mov_avg_window = 5;
-fr_q_adj_smooth = movmean( fr_q_adj, mov_avg_window );
-fr_q_adj_smooth = movmean( fr_q_adj_smooth, mov_avg_window );
 
 figure
 plot(1:n_frames,fr_smoothed, 1:n_frames,fr_q_adj, 1:n_frames, fr_q_adj_smooth)
-legend('Smoothed', 'Adjusted, Quantized', 'Adjusted, Quantized, Smoothed')
+legend('Smoothed', 'Adjusted')
 
 %% Compute playback vector from framerate vector
 scaled_playback = fr2playback(fr_scaled, fr);
