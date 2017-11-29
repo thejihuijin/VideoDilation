@@ -20,11 +20,30 @@ iFName = filename;
 oFName = strcat(basefile,'_saliency.avi');
 oMFName = strcat(basefile,'_saliency.mat');
 wsize_s=3; wsize_t=3; wsize_fs=5; wsize_ft=5; 
-scaleFactor=1/8; segLength=min(n_frames,150);
-detSal(iFName,oFName,oMFName,wsize_s,wsize_t,...
-        wsize_fs,wsize_ft,scaleFactor,segLength);
+scaleFactor=1/8; segLength=min(n_frames,50);
+%detSal(iFName,oFName,oMFName,wsize_s,wsize_t,...
+%        wsize_fs,wsize_ft,scaleFactor,segLength);
+[smap, smapt] = compute_saliency(iFName,wsize_s,wsize_t,wsize_fs,wsize_ft,scaleFactor,segLength);
 fprintf('Done\n');
 clear('regex','wsize_*','segLength','scaleFactor','*FName');
+
+size(smap)
+size(smapt)
+%%
+fig = figure;
+for i = 1:n_frames
+    subplot(121);
+    imagesc(smap(:,:,i))
+    %title('Constant framerate')
+    title(['Original @ ' num2str(15) ' fps - ' ...
+        sprintf('%.2f',i/15) ' seconds elapsed'])
+    
+    subplot(122);
+    %tmpSal=imresize(saliencyMapTime(:,:,i),[rows, cols],'bilinear');
+    imagesc(smapt(:,:,i));%,salminmax);
+    title('Saliency Map');
+    pause(1/15);
+end
 %% Read in Saliency Frames
 
 %saliencyMapHolder = zeros([18,18,448]);
@@ -140,22 +159,22 @@ end
 
 clear('sal_mask');
 
+
 %% Compute Energy Functions
 % Optical Flow
-of_minkowski = minkowski(flow_mags);
-of_five_num = five_num_sum(flow_mags);
-of_weight_pool_half = weight_pool(flow_mags,.5);
+of_minkowski = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'OF','MINK');
+of_five_num = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'OF','FNS');
+of_weight_pool_half = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'OF','WP');
 
 % Time Weighted Saliency
-tsal_minkowski = minkowski(saliencyMapTime);
-tsal_five_num = five_num_sum(saliencyMapTime);
-tsal_weight_pool_half = weight_pool(saliencyMapTime,.5);
+tsal_minkowski = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'TSAL','MINK');
+tsal_five_num = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'TSAL','FNS');
+tsal_weight_pool_half = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'TSAL','WP');
 
 % Masked OF
-mof_minkowski = minkowski(masked_flow);
-mof_five_num = five_num_sum(masked_flow);
-mof_weight_pool_half = weight_pool(masked_flow,.5);
-
+mof_minkowski = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','MINK');
+mof_five_num = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','FNS');
+mof_weight_pool_half = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','WP');
 %% Final Graph
 close all;
 xvals = 1:3:n_frames;
@@ -184,6 +203,7 @@ title('Comparison of Various Energy Functions')
 xlabel('Frame Number')
 %%
 clear('regex','of_*','sal_*','tsal_*','mof_*','mtsal_*');
+
 %%
 %
 %
@@ -207,8 +227,8 @@ fr_smoothed = movmean(fr_scaled, mov_avg_window);
 
 %% Quantize framerate, adjust framerate changes, re-smooth framerate
 q_levels = 5;
-fr_quant = quantFR( fr_smoothed, q_levels );
-fr_q_adj = adjustFR( fr_quant, 0.1, fr );
+%fr_quant = quantFR( fr_smoothed, q_levels );
+fr_q_adj = adjustFR( fr_smoothed, 0.2, fr );
 
 % Smooth the adjusted framerate
 mov_avg_window = 5;
