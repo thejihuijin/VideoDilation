@@ -5,7 +5,7 @@ if ~exist('mov_avg_window','var')
     mov_avg_window=15;
 end
 if ~exist('p','var')
-    p = 2;
+    p = 1/2;
 end
 
 [~,~,n_frames] = size(frames);
