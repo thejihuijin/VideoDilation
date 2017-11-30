@@ -2,11 +2,13 @@
 % Assume input video is RGB 
 % Dimensions = (rows, cols, 3, frames)
 %
+% INPUTS
 % filename : String filename
 % startTime : Time in video to start, in seconds
 % endTime : Time in video to end, in seconds
 % ds : Downsampling factor
 %
+% OUTPUTS
 % vidMatrix : 4D matrix of video
 % fr : framerate at which the video was taken (trunacted to an integer)
 

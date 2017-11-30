@@ -2,10 +2,12 @@
 % preemptively slow before 'exciting' segements and smoothly speed back up
 % afterward.
 %
+% INPUTS
 % frVect : vector w/ time-varying framerate
 % timeShift : Time to shift slow/speedups by, in seconds
 % fr : Framerate video was taken at
 %
+% OUTPUT
 % frAdjusted : vector w/ time-varying framerate & time-padded slow/speedup
 
 function frAdjusted = adjustFR( frVect, timeShift, fr )

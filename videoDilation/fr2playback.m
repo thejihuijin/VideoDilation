@@ -1,13 +1,34 @@
-function playbackFrames = fr2playback( frameRates, playback_fr )
-% Input a vector of framerates and a playback framerate
-% Outputs a vector of frame indices to play sequentially
+% FR2PLAYBACK Takes a variable framerate vector and finds the frames to be
+% played at a constant framerate that best simulate the variable framerate.
+%
+% INPUTS
+% frameRates : Vector of variable framerate per frame
+% playback_fr : Constant framerate at which frames will be played
+% 
+% OUTPUT
+% playbackFrames : Vector of frame indices into the video matrix to be 
+% played sequentially at a constant FR, simulating a variable FR
 
+function playbackFrames = fr2playback( frameRates, playback_fr )
+
+% ECE6258: Digital image processing 
+% School of Electrical and Computer Engineering 
+% Georgia Instiute of Technology 
+% Date Modified : 11/28/17
+% By Erik Jorgensen (ejorgensen7@gatech.edu), Jihui Jin (jihui@gatech.edu)
+
+% Delays between consecutive frames at variable framerate
 dilated_delays = 1 ./ frameRates;
+
+% Cumulative time until each frame at variable framerate
 dilated_times = [0 cumsum(dilated_delays(1:end))];
 
-plybk_times = 0 : 1/playback_fr : dilated_times(end);% + 1/playback_fr;
-playbackFrames = zeros(1,length(plybk_times));
+% Cumulative time until each frame at constant framerate
+plybk_times = 0 : 1/playback_fr : dilated_times(end);
 
+% Find each frame from the variable framerate delays vector that occurs
+% closest to each frame in the constant framerate delay vector.
+playbackFrames = zeros(1,length(plybk_times));
 frame_ptr = 1;
 for i = 1:length(plybk_times)
     min_dist = inf;
