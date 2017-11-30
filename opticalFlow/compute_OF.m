@@ -1,5 +1,5 @@
 % COMPUTE_OF returns the optical flow magnitudes for a given video
-% Currently uses Horn Schuck
+% Currently uses Horn Schunck
 % Assumes input video is in grey scale
 % Dimensions = (rows, cols, frames)
 %
