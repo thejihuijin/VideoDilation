@@ -1,13 +1,11 @@
-% SMOOTH_NORMALIZE filter and normalize a 1D array
-% Assume input array is 1D
+% SMOOTH_NORMALIZE filter and normalize a 1D array between 0 and 1
 %
-% filename : String filename
-% startTime : Time in video to start, in seconds
-% endTime : Time in video to end, in seconds
-% ds : Downsampling factor
+% energy : 1D energy function
+% mov_avg_window : size of moving average window for moving mean filter
+% mov_med_window : size of window for moving median filter
 %
-% vidMatrix : 4D matrix of video
-% fr : framerate at which the video was taken (trunacted to an integer)
+% smoothed_energy : filtered and normalized energy function
+% std_dev : standard deviation of unfiltered energy function
 
 function [smoothed_energy, std_dev] = smooth_normalize(energy, mov_avg_window,mov_med_window)
 

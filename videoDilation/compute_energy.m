@@ -1,5 +1,32 @@
+% COMPUTE_ENERGY Converts heat maps to energy of frame.
+% Frames with higher energy will be slowed down and frames with lower
+% energy will be sped up.
+% Heat Maps are assumed to be 3D matrices with the same number of "frames".
+% Size of individual frames may differ between different heat maps
+%
+% OF_mags : Optical Flow Magnitudes, assumed to be same size as original
+%           video
+% saliencyMaps : Saliency of each frame
+% tsaliencyMaps : Time-Weighted saliency map of each frame
+% method : string determining which heat map to use. Options:
+%          - 'OF' - Optical Flow Magnitudes
+%          - 'TSAL' - Time-Weighted Saliency Maps
+%          - 'MOF' - Saliency Masked Optical Flow
+% pool : String determining which pooling function to use. Options:
+%          - 'MINK' - Minkowski Pooling, p = 2
+%          - 'WP' - Weighted Pooling, p = 1/2
+%          - 'FNS' - Five Number Summary
+%
+% normalized_energy : Energy calculated from heat maps normalized from 0 to
+%           1. Of dimension (1, n_frames)
+
 function [normalized_energy] = compute_energy(OF_mags, saliencyMaps, tsaliencyMaps, method, pool)
-%COMPUTE_ENERGY
+
+% ECE6258: Digital image processing 
+% School of Electrical and Computer Engineering 
+% Georgia Instiute of Technology 
+% Date Modified : 11/28/17
+% By Erik Jorgensen (ejorgensen7@gatech.edu), Jihui Jin (jihui@gatech.edu)
 
 % Check Parameters
 if ~exist('method','var')
