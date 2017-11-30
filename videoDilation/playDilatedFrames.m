@@ -39,8 +39,8 @@ if length(size(vidMat)) == 4
     for i = 1:length(frameIndices)
         imagesc(vidMat(:,:,:,frameIndices(i)))
         axis off
-        title([sprintf('%.2f',currTime) ' seconds elapsed at ' ...
-            sprintf('%.1f',dilated_fr(frameIndices(i))) ' frames/s'])
+        title(['Dilated @ ' sprintf('%.1f',dilated_fr(frameIndices(i))) ...
+               ' fps - ' sprintf('%.2f',currTime) ' seconds elapsed'])
         pause( 1/fr );
         currTime = currTime + 1/fr;
     end
@@ -48,8 +48,8 @@ else
     for i = 1:length(frameIndices)
         colormap gray
         imagesc(vidMat(:,:,frameIndices(i)))
-        title([sprintf('%.2f',currTime) ' seconds elapsed at ' ...
-            sprintf('%.1f', dilated_fr(frameIndices(i))) ' frames/s'])
+        title(['Dilated @ ' sprintf('%.1f',dilated_fr(frameIndices(i))) ...
+               ' fps - ' sprintf('%.2f',currTime) ' seconds elapsed'])
         pause( 1/fr );
         currTime = currTime + 1/fr;
     end
