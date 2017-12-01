@@ -10,7 +10,7 @@ dim_ds = 2;
 % must be in the correct directory for relative path to work).
 % If the video dimension does not meet the criteria of the saliency 
 % algorithm, a new video will be generated
-filename = 'data/Reddit_Videos/zaboomafoo.mp4';
+filename = 'data/Reddit_Videos/confederate_flag.mp4';
 filename = check_video(filename, wsize_s*wsize_fs/scaleFactor);
 
 %% Load Video
@@ -53,20 +53,9 @@ figure; colormap gray;
 for i = 1:n_frames
     st = tic;
     
-    %subplot(131);
     imagesc(vid(:,:,i))
-    %title('Constant framerate')
     title(['Original @ ' num2str(fr) ' fps - ' ...
         sprintf('%.2f',i/fr) ' seconds elapsed'])
-    
-%     subplot(132);
-%     tmpSal=imresize(saliencyMapTime(:,:,i),[rows, cols],'bilinear');
-%     imagesc(tmpSal, salminmax);
-%     title('Saliency Map');
-%     
-%     subplot(133);
-%     imagesc(flow_mags(:,:,i),ofminmax);
-%     title('Optical Flow');
     dur_calc = toc(st);
     pause(1/fr - dur_calc);
 end
@@ -134,7 +123,7 @@ clear('regex','of_*','sal_*','tsal_*','mof_*','mtsal_*');
 energy = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','WP');
 
 % convert to fr
-time_padded_fr=energy2fr(energy,fr,.2);
+time_padded_fr=energy2fr(energy,fr,.2,1.5);
 
 %% Compute playback vector from framerate vector
 % resample frames based on new frame rate
@@ -155,12 +144,11 @@ title('Time Dilated Frame Rate');
 %% Play Video
 figure
 playDilatedFrames( vid, adjusted_smooth_playback, fr, time_padded_fr )
+%% Save Video
+% uncomment to save video to file
 
-
-
-
-
-
+% rgbvid = vidToMat(filename);
+% saveDilatedFrames( rgbvid , adjusted_smooth_playback, fr, time_padded_fr);%,outputfilename )
 
 
 
