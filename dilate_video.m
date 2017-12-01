@@ -27,7 +27,7 @@ fr_scale = 1.5;
 % All videos in dropbox have been tested on Mac, matlab_r2017b and show no
 % issues. Some videos when being resized have caused weird distortions on
 % windows. Not sure why :(
-filename = 'data/Reddit_Videos/confederate_flag.mp4';
+filename = 'data/Reddit_Videos/cat_wall_climb.mp4';
 filename = check_video(filename, wsize_s*wsize_fs/scaleFactor);
 
 %% Load Video
