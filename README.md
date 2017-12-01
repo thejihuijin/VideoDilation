@@ -17,7 +17,7 @@ sped through.
   - Computer Vision Toolbox
   - Image Processing Toolbox
   
-Example videos can be found here[link to be added later].
+Example videos can be found [here](https://www.dropbox.com/sh/wpze1o1taqz6yyh/AABEjfNdWdxFotm40nC9Dp_ma?dl=0 "Test Videos").
   
 ## How To Run
 An example script is provided in `dilate_video.m`
@@ -28,9 +28,23 @@ dilate_video
 in the matlab prompt.
 
 
+The last section includes code to save the resulting video to a file with the option of a filename.
+```
+% Retrieves original rgb frames
+rgbvid = vidToMat(filename);
 
+% saves as output 'test.mp4' in current directory
+saveDilatedFrames( rgbvid , adjusted_smooth_playback, fr, time_padded_fr);
 
+% Can set optional output directory/filename
+saveDilatedFrames( rgbvid , adjusted_smooth_playback, fr, time_padded_fr, outputfilename )
+```
 
+### Note
+There are minor potential issues with the video resize code. All videos included in the dropbox
+work on Mac MATLAB_R2017b, but the resizing has caused some distortion on a windows machine. This 
+problem does not affect every video. We have isolated the issue to the readframe call, but have not 
+fixed the issues since then. 
 
 
 

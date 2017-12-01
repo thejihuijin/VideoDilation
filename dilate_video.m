@@ -1,15 +1,32 @@
 %% 
 clear all; close all; clc;
 %% Define parameters
+% Saliency parameters 
 wsize_s=3; wsize_t=3; wsize_fs=5; wsize_ft=5; 
 scaleFactor=1/8; segLength=100;
 
+% Downsample rate of video when reading into memory
+% Increase if running out
 dim_ds = 2;
+
+% Time padding in seconds 
+% Determines how early to slow down before an "interesting" event
+time_pad_shift = .2;
+
+% Frame rate scaling
+% Scales final frame rate speed-up/slow-down by 2^fr_scale
+% fr_scale = 1 yields smoother results. Currently at 1.5 to exaggerate
+% effects of algorithm
+fr_scale = 1.5;
+
 %% Check Video size for saliency algorithm
 % NOTE: Path must be absolute or correct relative path to video (i.e. you
 % must be in the correct directory for relative path to work).
 % If the video dimension does not meet the criteria of the saliency 
 % algorithm, a new video will be generated
+% All videos in dropbox have been tested on Mac, matlab_r2017b and show no
+% issues. Some videos when being resized have caused weird distortions on
+% windows. Not sure why :(
 filename = 'data/Reddit_Videos/confederate_flag.mp4';
 filename = check_video(filename, wsize_s*wsize_fs/scaleFactor);
 
@@ -123,7 +140,7 @@ clear('regex','of_*','sal_*','tsal_*','mof_*','mtsal_*');
 energy = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','WP');
 
 % convert to fr
-time_padded_fr=energy2fr(energy,fr,.2,1.5);
+time_padded_fr=energy2fr(energy,fr,time_pad_shift,fr_scale);
 
 %% Compute playback vector from framerate vector
 % resample frames based on new frame rate
