@@ -10,7 +10,7 @@ dim_ds = 2;
 % must be in the correct directory for relative path to work).
 % If the video dimension does not meet the criteria of the saliency 
 % algorithm, a new video will be generated
-filename = 'data/Reddit_Videos/confederate_flag.mp4';
+filename = 'data/Reddit_Videos/cat_wall_climb.mp4';
 filename = check_video(filename, wsize_s*wsize_fs/scaleFactor);
 
 %% Load Video
@@ -105,7 +105,7 @@ plot(xvals,mof_minkowski(1:3:end),'--b*','DisplayName','MOF Minkowski');
 plot(xvals,mof_weight_pool_half(1:3:end),'--bo','DisplayName','MOF Weight Pool 1/2');
 plot(xvals,mof_five_num(1:3:end),'--bx','DisplayName','MOF Five Num Sum');
 
-legend()
+legend('Location','SouthEast')
 title('Comparison of Various Energy Functions')
 xlabel('Frame Number')
 %%
@@ -155,17 +155,51 @@ playDilatedFrames( vid, adjusted_smooth_playback, fr, time_padded_fr )
 
 
 
+%%
+i = 100;
+figure;
 
+subplot(221); 
+imshow(vid(:,:,i))
+title('Original Frame');
 
+subplot(222); 
+imagesc(flow_mags(:,:,i));
+title('Optical Flow');
+axis off;
+axis image;
 
+subplot(223)
+tmp = imresize(saliencyMapTime(:,:,i),[rows cols]);
+imagesc(tmp);
+title('Time Weighted Saliency');
+axis off;
+axis image;
 
+subplot(224)
+tmp = imresize(saliencyMapHolder(:,:,1),[rows cols]);
+tmp = imbinarize(tmp);
+tmp = flow_mags(:,:,i).*tmp;
+imagesc(tmp);
+title('Saliency Masked OF');
+axis off;
+axis image;
 
+%%
+figure;hold on
+plot(time_padded_fr);
+%[val, ind] = max(time_padded_fr)
+plot(79,time_padded_fr(79),'ro');
+plot(120,time_padded_fr(120),'go')
+axis([0 n_frames 0 70])
+title('Time Padded Frame Rate')
+ylabel('Frame Rate (fps)');
+xlabel('Frame Number');
 
+%%
+imwrite(vid(:,:,79),'cat_wc_boring.png')
+imwrite(vid(:,:,120),'cat_wc_cool.png')
 
-
-
-
-
-
-
-
+%%
+%figure;
+imshow(vid(:,:,40));
