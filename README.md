@@ -6,6 +6,9 @@ depending on the energy present in each frame. More "interesting" events
 are presented in slow motion while as less "interesting" events are
 sped through.
 
+## Authors
+Jihui Jin and Erik Jorgensen
+
 ## Contents
 - Video Dilation : Library for automatically determining energy and adjusting frame rates
 - Optical Flow : Optical Flow. Currently using Matlab Horn-Schunck
