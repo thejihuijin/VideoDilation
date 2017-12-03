@@ -10,11 +10,11 @@ dim_ds = 2;
 % must be in the correct directory for relative path to work).
 % If the video dimension does not meet the criteria of the saliency 
 % algorithm, a new video will be generated
-filename = 'data/Reddit_Videos/cat_wall_climb.mp4';
+filename = 'data/Reddit_Videos/dog_and_stuffedDog.mp4';
 filename = check_video(filename, wsize_s*wsize_fs/scaleFactor);
 
 %% Load Video
-[rgbvid, fr] = sliceVid(filename,0,20,dim_ds);
+[rgbvid, fr] = sliceVid(filename,2,20,dim_ds);
 vid = rgbToGrayVid(rgbvid);
 [rows, cols, n_frames] = size(vid);
 clear('rgbvid','dim_ds');
@@ -25,8 +25,8 @@ fprintf('Computing Saliency\n');
 [saliencyMapHolder, saliencyMapTime] = compute_saliency(filename,wsize_s,wsize_t,wsize_fs,wsize_ft,scaleFactor,segLength);
 fprintf('Done\n');
 
-saliencyMapHolder = saliencyMapHolder(:,:,1:n_frames);
-saliencyMapTime = saliencyMapTime(:,:,1:n_frames);
+%saliencyMapHolder = saliencyMapHolder(:,:,1:n_frames);
+%saliencyMapTime = saliencyMapTime(:,:,1:n_frames);
 %% Compute optical flow frames
 fprintf('Computing Optical Flow\n');
 flow_mags = compute_OF(vid);
@@ -82,6 +82,14 @@ tsal_weight_pool_half = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTi
 mof_minkowski = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','MINK');
 mof_five_num = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','FNS');
 mof_weight_pool_half = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','WP');
+%%
+i = 85;
+%figure;
+imshow(vid(:,:,i));
+%%
+gt = zeros(1,n_frames);
+gt(1:50) = 1;
+gt(85:end) = 1;
 %% Final Graph
 
 xvals = 1:3:n_frames;
@@ -120,7 +128,7 @@ clear('regex','of_*','sal_*','tsal_*','mof_*','mtsal_*');
 
 %% Compute Frame Rates from energy
 % select energy function
-energy = compute_energy(flow_mags,saliencyMapHolder,saliencyMapTime,'MOF','WP');
+energy = compute_energy(flow_mags,saliencyMapHolder(:,:,61:end),saliencyMapTime,'MOF','WP');
 
 % convert to fr
 time_padded_fr=energy2fr(energy,fr,.2,1.5);
@@ -199,7 +207,53 @@ xlabel('Frame Number');
 %%
 imwrite(vid(:,:,79),'cat_wc_boring.png')
 imwrite(vid(:,:,120),'cat_wc_cool.png')
+imwrite(vid(:,:,30),'cat_wc_cool2.png')
 
 %%
-%figure;
-imshow(vid(:,:,40));
+figure;
+imshow(vid(:,:,3));
+%%
+figure;
+plot(time_padded_fr)
+%%
+fr_visualize = repmat(time_padded_fr,10,1);
+figure;
+ax = subplot(2,6,[1,5]);
+imagesc(fr_visualize,[10,50])
+ax = gca;
+ax.YAxis.Visible = 'off';
+%axis image
+%axis off
+colorbar()
+%xlim([60,n_frames+60])
+
+%%
+
+rgbvid = vidToMat(filename);
+%%
+skip = 40;
+index = 0;
+close all;
+for i = skip:skip:n_frames
+    outname = strcat('out_',num2str(i),'.png');
+    %imwrite(rgbvid(:,:,:,i+60),outname);
+    index = index+1;
+    figure;
+    subplot(121)
+    tmp = imresize(saliencyMapHolder(:,:,i+60),[rows,cols],'Method','bilinear');
+    imagesc(tmp)
+    title(i+60);
+    axis image
+    axis off
+    
+    subplot(122)
+    imagesc(vid(:,:,i));
+    
+end
+
+%%
+figure;
+%subplot(121)
+tmp = imresize(saliencyMapHolder(:,:,i+60),[rows,cols],'Method','bilinear');
+imagesc(tmp)
+colorbar()
