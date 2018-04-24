@@ -21,6 +21,7 @@ Jihui Jin and Erik Jorgensen
   - Image Processing Toolbox
   
 Example videos can be found [here](https://www.dropbox.com/sh/wpze1o1taqz6yyh/AABEjfNdWdxFotm40nC9Dp_ma?dl=0 "Test Videos").
+Paper can be found [here](https://www.dropbox.com/s/m8o7xxb9lnl4zrz/JinJihui_JorgensenErik.pdf?dl=0).
   
 ## How To Run
 An example script is provided in `dilate_video.m`
